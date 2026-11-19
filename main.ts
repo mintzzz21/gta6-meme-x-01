@@ -25,5 +25,20 @@ if (
   throw new Error('POST.json must be a JSON object with a string "url"');
 }
 
+// The gate only accepts an X post address (x.com or twitter.com, with the
+// post id digits). Warn early when the address is not one, so a placeholder
+// or a typo is caught before submission — the copy below still goes ahead,
+// because the house, not this program, is the one that refuses a bad post.
+const url = (post as { url: string }).url;
+const looksLikeXPost =
+  /^https:\/\/(www\.|mobile\.)?(x\.com|twitter\.com)\/[^/]+\/(status|statuses|i\/web\/status)\/\d+/.test(
+    url,
+  );
+if (!looksLikeXPost) {
+  console.error(
+    `warning: POST.json url does not look like an X post address: ${url}`,
+  );
+}
+
 mkdirSync(OUTPUT_DIR, { recursive: true });
 writeFileSync(join(OUTPUT_DIR, 'POST.json'), raw, 'utf8');
